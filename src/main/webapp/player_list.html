@@ -1,0 +1,142 @@
+<html>
+<head>
+    <title>NBA球员管理模块</title>
+    <meta charset="utf-8" />
+    <script src="js/plugins/jquery/jquery.min.js"></script>
+    <script type="application/javascript" src="angular/angular.min.js"></script>
+</head>
+<script>
+    var app=angular.module('myApp',[]); //定义了一个叫myApp的模块
+    //定义控制器
+    app.controller('myController',function($scope,$http){
+        $scope.findAll=function(){
+            $scope.entity={};
+            $http.post("PlayerController/getAll.do").success(function(response){
+                    $scope.list=response;
+                })
+            }
+
+        $scope.findSchoolList=function () {
+            $http.post('SchoolController/getSchool.do').success(
+                function (response) {
+                    $scope.slist=response;
+                })
+        }
+        $scope.findTeamList=function () {
+            $http.post('TeamController/getTeam.do').success(
+                function (response) {
+                    $scope.tlist=response;
+                })
+        }
+
+
+        $scope.toAdd = function () {
+            $scope.shop={};
+            document.getElementById("add").style.display="block";
+        }
+        $scope.saveStu = function () {
+            $http.post('PlayerController/addPlayer.do',$scope.entity).success(function (response) {
+                if(response.success){
+                    alert(response.message);
+                    $scope.findAll();
+                    document.getElementById("add").style.display="none";
+                }else{
+                    alert(response.message);
+                }
+            })
+        }
+        $scope.ids =[];
+        $scope.updateSelection = function ($event,id) {
+            if($event.target.checked){
+                $scope.ids.push(id);
+            }else{
+                //这个是用户取消选择了，我们需要把用户取消的这个id在数组中的位置找出来，下标
+                var index = $scope.ids.indexOf(id);
+                /**
+                 *去按照下标删除，第二个参数，是删除几个，只能删除一个
+                 */
+                $scope.ids.splice(index,1);
+            }
+          //  alert($scope.ids);
+        }
+        $scope.deletePlay = function () {
+            $http.post("PlayerController/delPlayer.do",$scope.ids).success(function (response) {
+                if(response.success){
+                    alert(response.success);
+                    $scope.findAll();
+                }else{
+                    alert(response.message);
+                }
+            })
+        }
+
+
+    });
+
+</script>
+<body ng-app="myApp" ng-controller="myController" ng-init="findAll();findSchoolList();findTeamList()">
+<center>
+    <h1>NBA球员管理模块</h1>
+<table border="1" cellspacing="0" width="600" rules="all">
+    <input type="button" value="球员批量删除" ng-click="deletePlay()"/><br>
+    <input type="button" ng-click="toAdd()" value="球员添加"/><br>
+    <tr>
+        <th>编号</th>
+        <th>球员号码</th>
+        <th>球员名称</th>
+        <th>球员年龄</th>
+        <th>球员生日</th>
+        <th>毕业院校</th>
+        <th>所属球队</th>
+        <th>所在地区</th>
+    </tr>
+    <tr ng-repeat="p in list">
+        <td><input type="checkbox" ng-click="updateSelection($event,p.id)"/></td>
+        <td>{{p.id}}</td>
+        <td>{{p.name}}</td>
+        <td>{{p.age}}</td>
+        <td>{{p.birthday}}</td>
+        <td>{{p.sname}}</td>
+        <td>{{p.tname}}</td>
+        <td>{{p.area}}</td>
+    </tr>
+</table>
+    <div id="add"  style="display: none" align="center">
+        <h3>球员添加</h3>
+        <table>
+            <tr align="center">
+                <td>球员名称:</td>
+                <td><input type="text" ng-model="entity.name" name="diNone"></td>
+            </tr>
+            <tr align="center">
+                <td>球员年龄:</td>
+                <td><input type="text"  ng-model="entity.age" name="diNone"></td>
+            </tr>
+            <tr align="center">
+                <td>球员生日:</td>
+                <td><input type="text"  ng-model="entity.birthday" name="diNone"></td>
+            </tr>
+            <tr>
+                <td>毕业院校:</td>
+                <td>
+                    <select ng-model="entity.sid">
+                        <option ng-repeat="s in slist" value="{{s.sid}}" >{{s.sname}}</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>所属球队：</td>
+                <td>
+                    <select ng-model="entity.tid">
+                        <option ng-repeat="t in tlist" value="{{t.tid}}" >{{t.tname}}</option>
+                    </select>
+                </td>
+            </tr>
+            <tr align="center">
+                <td colspan="2"><input type="button" value="保存" ng-click="saveStu()"/></td>
+            </tr>
+        </table>
+    </div>
+</center>
+</body>
+</html>
