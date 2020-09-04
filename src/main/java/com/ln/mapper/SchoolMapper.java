@@ -9,5 +9,9 @@ import java.util.List;
  * 作者： 丁程文
  */
 public interface SchoolMapper {
+
+
+
+
     List<SchoolBean> getSchool();
 }
