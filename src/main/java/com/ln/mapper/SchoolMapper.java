@@ -18,5 +18,7 @@ public interface SchoolMapper {
 
 
 
+
+
     List<SchoolBean> getSchool();
 }
